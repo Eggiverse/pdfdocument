@@ -3,7 +3,7 @@
 from functools import reduce
 
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_RIGHT
+from reportlab.lib.enums import TA_RIGHT, TA_CENTER
 from reportlab.lib.fonts import addMapping
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import cm, mm
@@ -237,9 +237,11 @@ class PDFDocument(object):
         _styles = getSampleStyleSheet()
 
         self.style.normal = _styles['Normal']
+        self.style.normal.alignment = 4
         self.style.normal.fontName = '%s' % self.style.fontName
         self.style.normal.fontSize = self.style.fontSize
-        self.style.normal.firstLineIndent = 0
+        self.style.normal.firstLineIndent = 0.4 * cm
+        self.style.normal.spaceBefore = self.style.fontSize * 1.5
         # normal.textColor = '#0e2b58'
 
         self.style.heading1 = copy.deepcopy(self.style.normal)
@@ -285,6 +287,9 @@ class PDFDocument(object):
         self.style.paragraph = copy.deepcopy(self.style.normal)
         self.style.paragraph.spaceBefore = 1
         self.style.paragraph.spaceAfter = 1
+
+        self.style.table_header = copy.deepcopy(self.style.normal)
+        self.style.table_header.alignment = TA_CENTER
 
         self.style.bullet = copy.deepcopy(self.style.normal)
         self.style.bullet.bulletFontName = 'Symbol'
@@ -439,6 +444,9 @@ class PDFDocument(object):
 
     def p(self, text, style=None):
         self.story.append(Paragraph(text, style or self.style.normal))
+
+    def table_header(self, text, style=None):
+        self.story.append(Paragraph(text, style or self.style.table_header))
 
     def h1(self, text, style=None):
         self.story.append(Paragraph(text, style or self.style.heading1))
