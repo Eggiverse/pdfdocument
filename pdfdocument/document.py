@@ -12,12 +12,13 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (
     BaseDocTemplate, Spacer, Frame, PageTemplate, NextPageTemplate, PageBreak,
     Table, KeepTogether, CondPageBreak, Paragraph as _Paragraph)
+from reportlab.platypus import Image
 from reportlab.platypus.flowables import HRFlowable
 
 import copy
 import sys
 import unicodedata
-
+from scipy.ndimage import imread
 
 PY2 = (sys.version_info[0] < 3)
 
@@ -236,13 +237,19 @@ class PDFDocument(object):
 
         _styles = getSampleStyleSheet()
 
-        self.style.normal = _styles['Normal']
+        self.style.normal = copy.deepcopy(_styles['Normal'])
         self.style.normal.alignment = 4
         self.style.normal.fontName = '%s' % self.style.fontName
         self.style.normal.fontSize = self.style.fontSize
         self.style.normal.firstLineIndent = 0.4 * cm
         self.style.normal.spaceBefore = self.style.fontSize * 1.5
         # normal.textColor = '#0e2b58'
+
+        self.style.end_connection = copy.deepcopy(_styles['Normal'])
+        self.style.end_connection.alignment = 0
+        self.style.end_connection.fontName = '%s-Bold' % self.style.fontName
+        self.style.end_connection.fontSize = self.style.fontSize
+        self.style.end_connection.spaceBefore = self.style.fontSize * 3
 
         self.style.heading1 = copy.deepcopy(self.style.normal)
         self.style.heading1.fontName = '%s' % self.style.fontName
@@ -447,6 +454,16 @@ class PDFDocument(object):
 
     def table_header(self, text, style=None):
         self.story.append(Paragraph(text, style or self.style.table_header))
+
+    def image(self, image_path, width=8 * cm, style=None):
+        img = imread(image_path)
+        x, y = img.shape[:2]
+        image = Image(image_path, width=width, height=width * x / y)
+
+        self.story.append(image)
+
+    def end_connect(self, text, style=None):
+        self.story.append(Paragraph(text, style or self.style.end_connection))
 
     def h1(self, text, style=None):
         self.story.append(Paragraph(text, style or self.style.heading1))
