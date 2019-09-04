@@ -6,3 +6,5 @@
 ._*
 /dist
 MANIFEST
+
+/build/

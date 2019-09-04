@@ -18,7 +18,7 @@ from reportlab.platypus.flowables import HRFlowable
 import copy
 import sys
 import unicodedata
-from scipy.ndimage import imread
+from imageio import imread
 
 PY2 = (sys.version_info[0] < 3)
 
